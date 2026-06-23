@@ -13,23 +13,29 @@
 #define NOP_FUNC { __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); return __COUNTER__; }
 #define EXPORT(name) extern "C" __declspec(dllexport) int __cdecl name() NOP_FUNC
 
-#pragma comment(linker, "/export:GetFileVersionInfoA=_GetFileVersionInfoA_fw,@1")
-#pragma comment(linker, "/export:GetFileVersionInfoByHandle=_GetFileVersionInfoByHandle_fw,@2")
-#pragma comment(linker, "/export:GetFileVersionInfoExA=_GetFileVersionInfoExA_fw,@3")
-#pragma comment(linker, "/export:GetFileVersionInfoExW=_GetFileVersionInfoExW_fw,@4")
-#pragma comment(linker, "/export:GetFileVersionInfoSizeA=_GetFileVersionInfoSizeA_fw,@5")
-#pragma comment(linker, "/export:GetFileVersionInfoSizeExA=_GetFileVersionInfoSizeExA_fw,@6")
-#pragma comment(linker, "/export:GetFileVersionInfoSizeExW=_GetFileVersionInfoSizeExW_fw,@7")
-#pragma comment(linker, "/export:GetFileVersionInfoSizeW=_GetFileVersionInfoSizeW_fw,@8")
-#pragma comment(linker, "/export:GetFileVersionInfoW=_GetFileVersionInfoW_fw,@9")
-#pragma comment(linker, "/export:VerFindFileA=_VerFindFileA_fw,@10")
-#pragma comment(linker, "/export:VerFindFileW=_VerFindFileW_fw,@11")
-#pragma comment(linker, "/export:VerInstallFileA=_VerInstallFileA_fw,@12")
-#pragma comment(linker, "/export:VerInstallFileW=_VerInstallFileW_fw,@13")
-#pragma comment(linker, "/export:VerLanguageNameA=_VerLanguageNameA_fw,@14")
-#pragma comment(linker, "/export:VerLanguageNameW=_VerLanguageNameW_fw,@15")
-#pragma comment(linker, "/export:VerQueryValueA=_VerQueryValueA_fw,@16")
-#pragma comment(linker, "/export:VerQueryValueW=_VerQueryValueW_fw,@17")
+#ifdef _M_IX86
+#define LINKER_EXPORT(ext, ord) __pragma(comment(linker, "/export:" #ext "=__" #ext "_fw,@" #ord))
+#else
+#define LINKER_EXPORT(ext, ord) __pragma(comment(linker, "/export:" #ext "=_" #ext "_fw,@" #ord))
+#endif
+
+LINKER_EXPORT(GetFileVersionInfoA, 1)
+LINKER_EXPORT(GetFileVersionInfoByHandle, 2)
+LINKER_EXPORT(GetFileVersionInfoExA, 3)
+LINKER_EXPORT(GetFileVersionInfoExW, 4)
+LINKER_EXPORT(GetFileVersionInfoSizeA, 5)
+LINKER_EXPORT(GetFileVersionInfoSizeExA, 6)
+LINKER_EXPORT(GetFileVersionInfoSizeExW, 7)
+LINKER_EXPORT(GetFileVersionInfoSizeW, 8)
+LINKER_EXPORT(GetFileVersionInfoW, 9)
+LINKER_EXPORT(VerFindFileA, 10)
+LINKER_EXPORT(VerFindFileW, 11)
+LINKER_EXPORT(VerInstallFileA, 12)
+LINKER_EXPORT(VerInstallFileW, 13)
+LINKER_EXPORT(VerLanguageNameA, 14)
+LINKER_EXPORT(VerLanguageNameW, 15)
+LINKER_EXPORT(VerQueryValueA, 16)
+LINKER_EXPORT(VerQueryValueW, 17)
 
 EXPORT(_GetFileVersionInfoA_fw) EXPORT(_GetFileVersionInfoByHandle_fw) EXPORT(_GetFileVersionInfoExA_fw)
 EXPORT(_GetFileVersionInfoExW_fw) EXPORT(_GetFileVersionInfoSizeA_fw) EXPORT(_GetFileVersionInfoSizeExA_fw)
