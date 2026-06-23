@@ -1,10 +1,11 @@
-name: Build Chrome Plus Lite
+name: Build and Release Chrome Plus Lite
 
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -27,15 +28,53 @@ jobs:
           xmake config -a ${{ matrix.arch }} -m release -y
           xmake -y
 
-      - name: Prepare Release Directory
+      - name: Prepare Architecture Binary
         run: |
-          mkdir release_stage
-          cp build/release/version.dll release_stage/
+          cp build/release/version.dll version-${{ matrix.arch }}.dll
+        shell: bash
+
+      - name: Upload Component
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-${{ matrix.arch }}
+          path: version-${{ matrix.arch }}.dll
+
+  publish_release:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Download x64 Binary
+        uses: actions/download-artifact@v4
+        with:
+          name: version-x64
+          path: release_stage
+
+      - name: Download x86 Binary
+        uses: actions/download-artifact@v4
+        with:
+          name: version-x86
+          path: release_stage
+
+      - name: Copy Configuration File
+        run: |
           cp chrome++.ini release_stage/
         shell: bash
 
-      - name: Package as Zip Artifact
-        uses: actions/upload-artifact@v4
+      - name: Package Into Zip
+        run: |
+          powershell Compress-Archive -Path release_stage/* -DestinationPath chrome_plus_lite.zip
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: chrome_plus_lite-${{ matrix.arch }}
-          path: release_stage/*
+          tag_name: latest
+          name: Latest Automated Release
+          body: |
+            Automated production build for Chrome++ Lite.
+            Contains both x64 and x86 isolated portable execution binaries.
+          draft: false
+          prerelease: false
+          files: chrome_plus_lite.zip
