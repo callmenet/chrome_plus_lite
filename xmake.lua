@@ -5,7 +5,7 @@ set_encodings("source:utf-8")
 add_cxxflags("/std:c++23preview", {force = true})
 set_fpmodels("precise")
 
-add_requires("vcpkg::detours")
+add_requires("vcpkg::detours", {alias = "detours"})
 
 if is_mode("release") then
     set_exceptions("none")
@@ -20,6 +20,6 @@ target("chrome_plus_lite")
     set_kind("shared")
     set_targetdir("$(builddir)/$(mode)")
     set_basename("version")
-    add_packages("vcpkg::detours")
+    add_packages("detours")
     add_files("src/chrome++_lite.cc")
     add_links("shlwapi", "crypt32", "psapi", "shell32", "propsys", "ole32", "advapi32", "user32")
